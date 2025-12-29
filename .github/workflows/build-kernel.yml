@@ -95,7 +95,8 @@ jobs:
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/ksu-syscall-hooks.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/apply-susfs.patch
-        
+          patch -p1 < $GITHUB_WORKSPACE/Patches/set_memory_to_49_and_low.patch
+
       - name: Add Kernel Build Configuration Settings
         working-directory: kernel/arch/arm64/configs
         run: |
