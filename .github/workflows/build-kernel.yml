@@ -73,7 +73,7 @@ jobs:
           echo DATE=$(date +%F) >> $GITHUB_ENV
           curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
           cd ./KernelSU
-          export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" 10700)
+          export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
@@ -95,7 +95,7 @@ jobs:
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/ksu-syscall-hooks.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/apply-susfs.patch
-          
+
           # patch -p1 < $GITHUB_WORKSPACE/Patches/set_memory_to_49_and_low.patch
 
       - name: Add Kernel Build Configuration Settings
