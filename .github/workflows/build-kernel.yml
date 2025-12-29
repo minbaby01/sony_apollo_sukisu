@@ -71,7 +71,7 @@ jobs:
         working-directory: kernel
         run: |
           echo DATE=$(date +%F) >> $GITHUB_ENV
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s c520e57f9ba68e3100ee81bed54e1a7503bac2f6
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s nongki
           cd ./KernelSU
           export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -82,7 +82,6 @@ jobs:
         with:
           repository: SukiSU-Ultra/SukiSU_patch
           path: sukisu_patch
-          ref: aa8ba8dfb64f792acb4bbcdc9334f9030ea5c1a3
 
       - name: Get susfs4ksu
         run: |
@@ -95,7 +94,6 @@ jobs:
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/ksu-syscall-hooks.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/apply-susfs.patch
 
       - name: Add Kernel Build Configuration Settings
         working-directory: kernel/arch/arm64/configs
