@@ -55,8 +55,8 @@ jobs:
       - name: Get Kernel Source Code
         uses: actions/checkout@v5
         with:
-          repository: LineageOS/android_kernel_sony_sdm845
-          ref: lineage-22.2
+          repository: ${{ matrix.devices.name == 'xz2c' && 'LineageOS/android_kernel_sony_sdm845' || 'ShujathMohd/android_kernel_sony_sdm845' }}
+          ref: ${{ matrix.devices.name == 'xz2c' && 'lineage-22.2' || 'lineage-21' }}
           path: kernel
       
       - name: Setup Cross-compile toolchain
