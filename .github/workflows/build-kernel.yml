@@ -82,6 +82,7 @@ jobs:
         with:
           repository: SukiSU-Ultra/SukiSU_patch
           path: sukisu_patch
+          ref: aa8ba8dfb64f792acb4bbcdc9334f9030ea5c1a3
 
       - name: Get susfs4ksu
         run: |
