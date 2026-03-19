@@ -33,10 +33,10 @@ jobs:
         with:
           root-reserve-mb: 8192
           temp-reserve-mb: 2048
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
-          remove-codeql: 'true'
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
 
       - name: Install Package
         run: sudo apt update && sudo apt install -y p7zip-full git ccache
@@ -58,7 +58,7 @@ jobs:
           repository: LineageOS/android_kernel_sony_sdm845
           ref: lineage-22.2
           path: kernel
-      
+
       - name: Setup Cross-compile toolchain
         run: |
           mkdir -p toolchain
@@ -66,7 +66,7 @@ jobs:
           wget -q https://github.com/Mandi-Sa/clang/releases/download/amd64-kernel-arm_static-22/llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20250831.7z
           7za x llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20250831.7z
           rm llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20250831.7z
-      
+
       - name: Set up SukiSU
         working-directory: kernel
         run: |
@@ -105,7 +105,7 @@ jobs:
           # Add VFS configuration settings
           echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./${{ matrix.devices.config }}
-          
+
           # Add SUSFS configuration settings
           echo "CONFIG_KSU_SUSFS=y" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./${{ matrix.devices.config }}
@@ -136,7 +136,7 @@ jobs:
           if [ "${{ inputs.enable_feature_kpm }}" = "true" ]; then
             echo "CONFIG_KPM=y" >> ./${{ matrix.devices.config }}
           fi
-      
+
       - name: Build Kernel for ${{ matrix.devices.name }}
         working-directory: kernel
         env:
@@ -145,10 +145,14 @@ jobs:
             CROSS_COMPILE_ARM32=arm-linux-gnueabi- CC=clang LD=ld.lld
             HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS_PERF+=-O3
         run: |
-          export KBUILD_BUILD_TIMESTAMP=$(date)
+          export KBUILD_BUILD_TIMESTAMP="Fri Sep 22 20:30:00 IST 2023"
+          export SOURCE_DATE_EPOCH=1695391800
+          export KBUILD_BUILD_USER="builder"
+          export KBUILD_BUILD_HOST="localhost"
+
           export PATH=/usr/lib/ccache:$GITHUB_WORKSPACE/toolchain/bin:$PATH
           make -j$(nproc --all) ${args} ${{ matrix.devices.config }} all
-      
+
       - name: Apply KernelPatch for KPM
         if: ${{ inputs.enable_feature_kpm }}
         working-directory: kernel/out/arch/arm64/boot
@@ -162,7 +166,7 @@ jobs:
         run: |
           ls $GITHUB_WORKSPACE/kernel/out/arch/arm64/boot/
           cp $GITHUB_WORKSPACE/kernel/out/arch/arm64/boot/Image $GITHUB_WORKSPACE/AnyKernel3
-      
+
       - name: Pack kernel image with AnyKernel3
         uses: actions/upload-artifact@v4
         with:
