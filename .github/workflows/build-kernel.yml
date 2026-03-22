@@ -42,7 +42,7 @@ jobs:
         run: sudo apt update && sudo apt install -y p7zip-full git ccache
 
       - name: Restore ccache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /home/runner/.ccache_${{ matrix.devices.name }}
           key: ccache-${{ runner.os }}-${{ github.ref }}-${{ matrix.devices.name }}
@@ -50,10 +50,10 @@ jobs:
             ccache-${{ runner.os }}-${{ matrix.devices.name }}-
             ccache-${{ runner.os }}-
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get Kernel Source Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: LineageOS/android_kernel_sony_sdm845
           ref: lineage-22.2
@@ -78,7 +78,7 @@ jobs:
           sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
 
       - name: Get SukiSU Patches
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: SukiSU-Ultra/SukiSU_patch
           path: sukisu_patch
@@ -167,7 +167,7 @@ jobs:
           cp $GITHUB_WORKSPACE/kernel/out/arch/arm64/boot/Image $GITHUB_WORKSPACE/AnyKernel3
 
       - name: Pack kernel image with AnyKernel3
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.devices.name }}_SukiSU_${{ env.KSUVER }}
           path: AnyKernel3
