@@ -24,8 +24,8 @@ jobs:
         devices:
           - name: xz2c_dcm
             config: tama_apollo_kddi_defconfig
-          - name: xz2c
-            config: tama_apollo_defconfig
+          # - name: xz2c
+          #   config: tama_apollo_defconfig
     name: Build Kernel for ${{ matrix.devices.name }}
     steps:
       - name: Maximize build space
