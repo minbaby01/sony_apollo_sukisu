@@ -71,7 +71,7 @@ jobs:
         working-directory: kernel
         run: |
           echo DATE=$(date +%F) >> $GITHUB_ENV
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s 3f0f34e5b1c78833ebfa8a4ebc965cdc65c31438
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
           cd ./KernelSU
           export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
