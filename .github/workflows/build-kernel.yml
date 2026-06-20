@@ -71,7 +71,7 @@ jobs:
         working-directory: kernel
         run: |
           echo DATE=$(date +%F) >> $GITHUB_ENV
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s 797970757276e389b81abc8efac5c3320863734f
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
           cd ./KernelSU
           export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -83,11 +83,11 @@ jobs:
           repository: SukiSU-Ultra/SukiSU_patch
           path: sukisu_patch
 
-      - name: Get susfs4ksu
-        run: |
-          git clone -b kernel-4.9 --depth=1 https://gitlab.com/simonpunk/susfs4ksu.git
-          cp $GITHUB_WORKSPACE/susfs4ksu/kernel_patches/fs/* $GITHUB_WORKSPACE/kernel/fs/
-          cp $GITHUB_WORKSPACE/susfs4ksu/kernel_patches/include/linux/* $GITHUB_WORKSPACE/kernel/include/linux/
+      # - name: Get susfs4ksu
+      #   run: |
+      #     git clone -b kernel-4.9 --depth=1 https://gitlab.com/simonpunk/susfs4ksu.git
+      #     cp $GITHUB_WORKSPACE/susfs4ksu/kernel_patches/fs/* $GITHUB_WORKSPACE/kernel/fs/
+      #     cp $GITHUB_WORKSPACE/susfs4ksu/kernel_patches/include/linux/* $GITHUB_WORKSPACE/kernel/include/linux/
 
       - name: Patch Kernel
         working-directory: kernel
