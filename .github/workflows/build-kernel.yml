@@ -71,7 +71,7 @@ jobs:
         working-directory: kernel
         run: |
           echo DATE=$(date +%F) >> $GITHUB_ENV
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-main
+          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s builtin
           cd ./KernelSU
           export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
@@ -134,6 +134,8 @@ jobs:
 
           if [ "${{ inputs.enable_feature_kpm }}" = "true" ]; then
             echo "CONFIG_KPM=y" >> ./${{ matrix.devices.config }}
+            echo "CONFIG_KALLSYMS=y" >> ./${{ matrix.devices.config }}
+            echo "CONFIG_KALLSYMS_ALL=y" >> ./${{ matrix.devices.config }}
           fi
 
       - name: Build Kernel for ${{ matrix.devices.name }}

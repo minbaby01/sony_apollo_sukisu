@@ -12,6 +12,7 @@ do.cleanup=1
 do.cleanuponabort=0
 device.name1=xz2c_dcm
 device.name2=xz2c
+device.name3=apollo
 supported.versions=13
 supported.patchlevels=
 supported.vendorpatchlevels=
