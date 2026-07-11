@@ -109,9 +109,9 @@ index 068fdbcc9..d9d37ecd7 100644
  	if (!error)
  		error = cp_new_stat(&stat, statbuf);
  
-++#ifdef CONFIG_KSU_MANUAL_HOOK
-++	ksu_handle_newfstat_ret(&fd, &statbuf);
-++#endif
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_newfstat_ret(&fd, &statbuf);
++#endif
  	return error;
  }
  
