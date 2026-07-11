@@ -74,6 +74,7 @@ jobs:
       - name: Patch Kernel
         working-directory: kernel
         run: |
+          patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/ReSukiSU-Manual-hooks.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
         
