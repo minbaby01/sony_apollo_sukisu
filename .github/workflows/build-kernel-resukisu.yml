@@ -1,13 +1,7 @@
-name: Build Kernel - SukiSU
+name: Build Kernel - ReSukiSU
 
 on:
   workflow_dispatch:
-    inputs:
-      enable_feature_kpm:
-        description: "Enable kpm"
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   build:
@@ -63,65 +57,36 @@ jobs:
         run: |
           mkdir -p toolchain
           cd toolchain
-          wget -q https://github.com/Mandi-Sa/clang/releases/download/amd64-kernel-arm_static-22/llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20250831.7z
-          7za x llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20250831.7z
-          rm llvm22.0.0-binutils2.44_amd64-kernel-arm_static-20250831.7z
+          wget -q https://github.com/Mandi-Sa/clang/releases/download/amd64-kernel-arm_static-23/llvm23.0.0-binutils2.45.1_amd64-kernel-arm_static-20260706.7z
+          7za x llvm23.0.0-binutils2.45.1_amd64-kernel-arm_static-20260706.7z
+          rm llvm23.0.0-binutils2.45.1_amd64-kernel-arm_static-20260706.7z
       
-      - name: Set up SukiSU
+      - name: Set up ReSukiSU
         working-directory: kernel
         run: |
           echo DATE=$(date +%F) >> $GITHUB_ENV
-          curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s c520e57f9ba68e3100ee81bed54e1a7503bac2f6
+          curl -LSs "https://raw.githubusercontent.com/ReSukiSU/ReSukiSU/main/kernel/setup.sh" | bash
           cd ./KernelSU
-          export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 10700)
+          export KSU_VERSION=$(expr $(/usr/bin/git rev-list --count main) "+" 30000 "+" 700)
           echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
           sed -i "s/DKSU_VERSION=12800/DKSU_VERSION=${KSU_VERSION}/" kernel/Makefile
-
-      - name: Get SukiSU Patches
-        uses: actions/checkout@v5
-        with:
-          repository: SukiSU-Ultra/SukiSU_patch
-          path: sukisu_patch
-          ref: aa8ba8dfb64f792acb4bbcdc9334f9030ea5c1a3
-
-      - name: Get susfs4ksu
-        run: |
-          git clone -b kernel-4.9 --depth=1 https://gitlab.com/simonpunk/susfs4ksu.git
-          cp $GITHUB_WORKSPACE/susfs4ksu/kernel_patches/fs/* $GITHUB_WORKSPACE/kernel/fs/
-          cp $GITHUB_WORKSPACE/susfs4ksu/kernel_patches/include/linux/* $GITHUB_WORKSPACE/kernel/include/linux/
 
       - name: Patch Kernel
         working-directory: kernel
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/ksu-syscall-hooks.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/apply-susfs.patch
-
+          patch -p1 < $GITHUB_WORKSPACE/Patches/ReSukiSU-Manual-hooks.patch
+          patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
+        
       - name: Add Kernel Build Configuration Settings
         working-directory: kernel/arch/arm64/configs
         run: |
           echo "CONFIG_KSU=y" >> ./${{ matrix.devices.config }}
 
-          # Add VFS configuration settings
-          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./${{ matrix.devices.config }}
-          
-          # Add SUSFS configuration settings
-          echo "CONFIG_KSU_SUSFS=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INPUT_HOOK=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_SETUID_HOOK=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INITRC_HOOK=y" >> ./${{ matrix.devices.config }}
 
           # Add BBR
           echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./${{ matrix.devices.config }}
@@ -148,15 +113,6 @@ jobs:
           export KBUILD_BUILD_TIMESTAMP=$(date)
           export PATH=/usr/lib/ccache:$GITHUB_WORKSPACE/toolchain/bin:$PATH
           make -j$(nproc --all) ${args} ${{ matrix.devices.config }} all
-      
-      - name: Apply KernelPatch for KPM
-        if: ${{ inputs.enable_feature_kpm }}
-        working-directory: kernel/out/arch/arm64/boot
-        run: |
-          cp $GITHUB_WORKSPACE/sukisu_patch/kpm/patch_linux .
-          chmod +x patch_linux
-          ./patch_linux
-          mv oImage Image
 
       - name: Make AnyKernel3
         run: |
@@ -166,6 +122,6 @@ jobs:
       - name: Pack kernel image with AnyKernel3
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.devices.name }}_SukiSU_${{ env.KSUVER }}
+          name: ${{ matrix.devices.name }}_ReSukiSU_${{ env.KSUVER }}
           path: AnyKernel3
           compression-level: 9
