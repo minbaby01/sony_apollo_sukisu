@@ -90,6 +90,7 @@ jobs:
         run: |
           echo "CONFIG_KSU=y" >> ./${{ matrix.devices.config }}
 
+          echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INPUT_HOOK=y" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_MANUAL_HOOK_AUTO_SETUID_HOOK=y" >> ./${{ matrix.devices.config }}
