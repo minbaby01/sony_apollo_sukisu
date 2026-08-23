@@ -83,7 +83,7 @@ jobs:
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
           # patch -p1 < $GITHUB_WORKSPACE/Patches/ReSukiSU-Manual-hooks.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/apply-susfs.patch
+          patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_to_4.9.patch
 
       - name: Add Kernel Build Configuration Settings
         working-directory: kernel/arch/arm64/configs
