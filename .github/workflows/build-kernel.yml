@@ -2,12 +2,12 @@ name: Build Kernel - SukiSU
 
 on:
   workflow_dispatch:
-    inputs:
-      enable_feature_kpm:
-        description: "Enable kpm"
-        required: false
-        default: false
-        type: boolean
+    # inputs:
+    #   enable_feature_kpm:
+    #     description: "Enable kpm"
+    #     required: false
+    #     default: false
+    #     type: boolean
 
 jobs:
   build:
