@@ -75,7 +75,7 @@ jobs:
         working-directory: kernel
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
-          patch -p1 < $GITHUB_WORKSPACE/ReSukiSU-Manual-hooks.patch
+          patch -p1 < $GITHUB_WORKSPACE/Patches/ReSukiSU-Manual-hooks.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_4.9_sony_sdm845.patch
 
