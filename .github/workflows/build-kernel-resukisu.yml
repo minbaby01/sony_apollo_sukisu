@@ -75,9 +75,14 @@ jobs:
         working-directory: kernel
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/ReSukiSU-Manual-hooks.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_4.9_sony_sdm845.patch
+
+      - name: Auto Patch Manual Hooks for Non-GKI
+        working-directory: kernel
+        run: |
+          curl -sSL https://raw.githubusercontent.com/JackA1ltman/NonGKI_Kernel_Build_2nd/mainline/Patches/susfs_inline_hook_patches.sh -o susfs_inline_hook_patches.sh
+          chmod +x susfs_inline_hook_patches.sh
+          ./susfs_inline_hook_patches.sh
 
       - name: Add Kernel Build Configuration Settings
         working-directory: kernel/arch/arm64/configs
@@ -86,9 +91,8 @@ jobs:
 
           #Resuki hook
           echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INPUT_HOOK=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_SETUID_HOOK=y" >> ./${{ matrix.devices.config }}
-          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INITRC_HOOK=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KALLSYMS=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KALLSYMS_ALL=y" >> ./${{ matrix.devices.config }}
 
           # Add SUSFS configuration settings
           echo "CONFIG_KSU_SUSFS=y" >> ./${{ matrix.devices.config }}
