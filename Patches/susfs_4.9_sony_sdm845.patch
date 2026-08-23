@@ -1,5 +1,5 @@
 diff --git a/fs/Makefile b/fs/Makefile
-index 3cfd698..5b4103c 100644
+index 3cfd698bb..5b4103c39 100644
 --- a/fs/Makefile
 +++ b/fs/Makefile
 @@ -13,6 +13,8 @@ obj-y :=	open.o read_write.o file_table.o super.o \
@@ -12,7 +12,7 @@ index 3cfd698..5b4103c 100644
  obj-y +=	buffer.o block_dev.o direct-io.o mpage.o
  else
 diff --git a/fs/namei.c b/fs/namei.c
-index e8537d4..61c2b95 100644
+index e8537d462..61c2b9563 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
 @@ -38,6 +38,9 @@
@@ -201,7 +201,7 @@ index e8537d4..61c2b95 100644
  	if (IS_ERR(dentry))
  		goto out;
  	if (unlikely(!d_in_lookup(dentry))) {
-@@ -1784,6 +1877,12 @@ again:
+@@ -1784,6 +1877,12 @@ static struct dentry *lookup_slow(const struct qstr *name,
  				if (!error) {
  					d_invalidate(dentry);
  					dput(dentry);
@@ -214,7 +214,7 @@ index e8537d4..61c2b95 100644
  					goto again;
  				}
  				dput(dentry);
-@@ -1798,6 +1897,19 @@ again:
+@@ -1798,6 +1897,19 @@ static struct dentry *lookup_slow(const struct qstr *name,
  			dentry = old;
  		}
  	}
@@ -358,7 +358,7 @@ index e8537d4..61c2b95 100644
  	if (unlikely(error))
  		return error;
  	error = mnt_want_write(path.mnt);
-@@ -3623,24 +3803,57 @@ out2:
+@@ -3623,24 +3803,57 @@ static int do_tmpfile(struct nameidata *nd, unsigned flags,
  	mnt_drop_write(path.mnt);
  out:
  	path_put(&path);
@@ -460,7 +460,7 @@ index e8537d4..61c2b95 100644
  	if (unlikely(error)) {
  		if (error == -EOPENSTALE) {
  			if (flags & LOOKUP_RCU)
-@@ -4872,6 +5116,10 @@ out:
+@@ -4872,6 +5116,10 @@ int readlink_copy(char __user *buffer, int buflen, const char *link)
  	return len;
  }
  
@@ -488,7 +488,7 @@ index e8537d4..61c2b95 100644
  	do_delayed_call(&done);
  	return res;
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 5b253ad..a454562 100644
+index 21fd423b1..93cd5d8be 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -25,9 +25,20 @@
@@ -512,7 +512,7 @@ index 5b253ad..a454562 100644
  /* Maximum number of mounts in a mount namespace */
  unsigned int sysctl_mount_max __read_mostly = 100000;
  
-@@ -121,6 +132,13 @@ retry:
+@@ -121,6 +132,13 @@ static int mnt_alloc_id(struct mount *mnt)
  static void mnt_free_id(struct mount *mnt)
  {
  	int id = mnt->mnt_id;
@@ -788,7 +788,7 @@ index 5b253ad..a454562 100644
  	lock_mount_hash();
  	list_add_tail(&mnt->mnt_instance, &sb->s_mounts);
  	unlock_mount_hash();
-@@ -1686,7 +1902,7 @@ out_unlock:
+@@ -1686,7 +1902,7 @@ void __detach_mounts(struct dentry *dentry)
  	namespace_unlock();
  }
  
@@ -861,7 +861,7 @@ index 5b253ad..a454562 100644
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 +
 diff --git a/fs/notify/fdinfo.c b/fs/notify/fdinfo.c
-index 317b7e7..51a3f2d 100644
+index 317b7e7eb..51a3f2dc3 100644
 --- a/fs/notify/fdinfo.c
 +++ b/fs/notify/fdinfo.c
 @@ -12,6 +12,9 @@
@@ -966,7 +966,7 @@ index 317b7e7..51a3f2d 100644
  			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
  			   inotify_mark_user_mask(mark));
 diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 3f4c8f1..5bfa27c 100644
+index 7a67974bb..4f934387e 100644
 --- a/fs/proc/base.c
 +++ b/fs/proc/base.c
 @@ -88,6 +88,9 @@
@@ -979,7 +979,7 @@ index 3f4c8f1..5bfa27c 100644
  #ifdef CONFIG_HARDWALL
  #include <asm/hardwall.h>
  #endif
-@@ -1854,6 +1857,10 @@ out:
+@@ -1822,6 +1825,10 @@ static const char *proc_pid_get_link(struct dentry *dentry,
  	return ERR_PTR(error);
  }
  
@@ -990,7 +990,7 @@ index 3f4c8f1..5bfa27c 100644
  static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
  {
  	char *tmp = (char*)__get_free_page(GFP_TEMPORARY);
-@@ -1863,6 +1870,17 @@ static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
+@@ -1831,6 +1838,17 @@ static int do_proc_readlink(struct path *path, char __user *buffer, int buflen)
  	if (!tmp)
  		return -ENOMEM;
  
@@ -1008,7 +1008,7 @@ index 3f4c8f1..5bfa27c 100644
  	pathname = d_path(path, tmp, PAGE_SIZE);
  	len = PTR_ERR(pathname);
  	if (IS_ERR(pathname))
-@@ -2412,6 +2430,10 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
+@@ -2373,6 +2391,10 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
  				vma = vma->vm_next) {
  			if (!vma->vm_file)
  				continue;
@@ -1020,25 +1020,25 @@ index 3f4c8f1..5bfa27c 100644
  				continue;
  
 diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
-index 57d2d15..36a2a57 100644
+index cbd82dff7..f3fe6bc1f 100644
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
 @@ -6,6 +6,11 @@
- #include <asm/setup.h>
- #endif
- 
+ static int cmdline_proc_show(struct seq_file *m, void *v)
+ {
+ 	seq_printf(m, "%s\n", saved_command_line);
 +#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 +extern struct static_key_false susfs_is_fake_cmdline_or_bootconfig_buffer_set;
 +extern void susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
 +#endif
 +
- #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
- #define INITRAMFS_STR_FIND "skip_initramf"
- #define INITRAMFS_STR_REPLACE "want_initramf"
-@@ -28,6 +33,13 @@ static void proc_command_line_init(void) {
+ 	return 0;
+ }
  
- static int cmdline_proc_show(struct seq_file *m, void *v)
- {
+@@ -27,3 +32,10 @@ static int __init proc_cmdline_init(void)
+ 	return 0;
+ }
+ fs_initcall(proc_cmdline_init);
 +#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 +	if (static_branch_likely(&susfs_is_fake_cmdline_or_bootconfig_buffer_set)) {
 +		susfs_spoof_cmdline_or_bootconfig(m);
@@ -1046,11 +1046,8 @@ index 57d2d15..36a2a57 100644
 +		return 0;
 +	}
 +#endif
- #ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
- 	seq_printf(m, "%s\n", proc_command_line);
- #else
 diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-index 4274f83..1963ff3 100644
+index 4274f83bf..1963ff302 100644
 --- a/fs/proc/fd.c
 +++ b/fs/proc/fd.c
 @@ -11,17 +11,34 @@
@@ -1159,7 +1156,7 @@ index 4274f83..1963ff3 100644
  	if (seq_has_overflowed(m))
  		goto out;
 diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index e19a9b1..de8d541 100644
+index 1d06ab4aa..c85e4982e 100644
 --- a/fs/proc/task_mmu.c
 +++ b/fs/proc/task_mmu.c
 @@ -17,6 +17,9 @@
@@ -1172,7 +1169,7 @@ index e19a9b1..de8d541 100644
  
  #include <asm/elf.h>
  #include <asm/uaccess.h>
-@@ -364,6 +367,14 @@ static void show_vma_header_prefix_fake(struct seq_file *m,
+@@ -347,6 +350,14 @@ static void show_vma_header_prefix(struct seq_file *m,
  		   MAJOR(dev), MINOR(dev), ino);
  }
  
@@ -1187,7 +1184,7 @@ index e19a9b1..de8d541 100644
  static void
  show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
  {
-@@ -380,9 +391,36 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
+@@ -362,9 +373,36 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
  
  	if (file) {
  		struct inode *inode = file_inode(vma->vm_file);
@@ -1221,19 +1218,10 @@ index e19a9b1..de8d541 100644
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 +		susfs_sus_kstat_spoof_show_map_vma(inode, &dev, &ino);
 +#endif // #ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-         dentry = file->f_path.dentry;
-         if (dentry) {
-         	const char *path = (const char *)dentry->d_name.name; 
-@@ -393,7 +431,7 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
-             	name = "/dev/ashmem (deleted)";
- 		goto done;
-             	 	}
--            	if (strstr(path, "jit-zygote-cache")) { 
-+            	if (strstr(path, "jit-zygote-cache")) {
- 	  	start = vma->vm_start;
- 		end = vma->vm_end;
- 		show_vma_header_prefix_fake(m, start, end, flags, pgoff, dev, ino);
-@@ -857,6 +895,11 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
+ 	}
+ 
+ 	/* We don't show the stack guard page in /proc/maps */
+@@ -822,6 +860,11 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
  		mss = &mss_stack;
  	}
  
@@ -1245,7 +1233,7 @@ index e19a9b1..de8d541 100644
  	smaps_walk.private = mss;
  
  #ifdef CONFIG_SHMEM
-@@ -946,7 +989,6 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
+@@ -911,7 +954,6 @@ static int show_smap(struct seq_file *m, void *v, int is_pid)
  			   (unsigned long)(mss->swap_pss >> (10 + PSS_SHIFT)),
  			   (unsigned long)(mss->pss_locked >> (10 + PSS_SHIFT)));
  
@@ -1253,7 +1241,7 @@ index e19a9b1..de8d541 100644
  	if (!rollup_mode) {
  		arch_show_smap(m, vma);
  		show_smap_vma_flags(m, vma);
-@@ -1605,6 +1647,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+@@ -1570,6 +1612,9 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
  	while (count && (start_vaddr < end_vaddr)) {
  		int len;
  		unsigned long end;
@@ -1263,7 +1251,7 @@ index e19a9b1..de8d541 100644
  
  		pm.pos = 0;
  		end = (start_vaddr + PAGEMAP_WALK_SIZE) & PAGEMAP_WALK_MASK;
-@@ -1612,7 +1657,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
+@@ -1577,7 +1622,15 @@ static ssize_t pagemap_read(struct file *file, char __user *buf,
  		if (end < start_vaddr || end > end_vaddr)
  			end = end_vaddr;
  		down_read(&mm->mmap_sem);
@@ -1280,7 +1268,7 @@ index e19a9b1..de8d541 100644
  		start_vaddr = end;
  
 diff --git a/fs/proc_namespace.c b/fs/proc_namespace.c
-index 6863773..8ff0e74 100644
+index 6863773af..8ff0e7411 100644
 --- a/fs/proc_namespace.c
 +++ b/fs/proc_namespace.c
 @@ -11,10 +11,18 @@
@@ -1302,7 +1290,7 @@ index 6863773..8ff0e74 100644
  static unsigned mounts_poll(struct file *file, poll_table *wait)
  {
  	struct seq_file *m = file->private_data;
-@@ -236,6 +244,163 @@ out:
+@@ -236,6 +244,163 @@ static int show_vfsstat(struct seq_file *m, struct vfsmount *mnt)
  	return err;
  }
  
@@ -1502,7 +1490,7 @@ index 6863773..8ff0e74 100644
  }
  
 diff --git a/fs/readdir.c b/fs/readdir.c
-index 1059f2a..4a0fb3c 100644
+index 1059f2a9b..4a0fb3c30 100644
 --- a/fs/readdir.c
 +++ b/fs/readdir.c
 @@ -18,6 +18,11 @@
@@ -1751,51 +1739,49 @@ index 1059f2a..4a0fb3c 100644
  	return error;
  }
 diff --git a/fs/stat.c b/fs/stat.c
-index 82b61b6..60b3c3c 100644
+index 068fdbcc9..65ab2e18e 100644
 --- a/fs/stat.c
 +++ b/fs/stat.c
-@@ -18,6 +18,10 @@
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
+@@ -37,6 +37,10 @@ void generic_fillattr(struct inode *inode, struct kstat *stat)
+ 
+ EXPORT_SYMBOL(generic_fillattr);
  
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 +extern void susfs_sus_kstat_spoof_generic_fillattr(struct inode *inode, struct kstat *stat);
 +#endif
 +
  /**
-  * generic_fillattr - Fill in the basic attributes from the inode struct
-  * @inode: Inode to use as the source
-@@ -42,6 +46,9 @@ void generic_fillattr(struct inode *inode, struct kstat *stat)
- 	stat->ctime = inode->i_ctime;
- 	stat->blksize = i_blocksize(inode);
- 	stat->blocks = inode->i_blocks;
+  * vfs_getattr_nosec - getattr without security checks
+  * @path: file to get attributes from
+@@ -53,14 +57,25 @@ int vfs_getattr_nosec(struct path *path, struct kstat *stat)
+ {
+ 	struct inode *inode = d_backing_inode(path->dentry);
+ 
+-	if (inode->i_op->getattr)
++	if (inode->i_op->getattr) {
++#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
++		int err = inode->i_op->getattr(path->mnt, path->dentry, stat);
++		if (!err)
++			susfs_sus_kstat_spoof_generic_fillattr(inode, stat);
++		return err;
++#else
+ 		return inode->i_op->getattr(path->mnt, path->dentry, stat);
++#endif
++	}
+ 
+ 	generic_fillattr(inode, stat);
+ 	return 0;
+ }
+ 
+ EXPORT_SYMBOL(vfs_getattr_nosec);
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 +	susfs_sus_kstat_spoof_generic_fillattr(inode, stat);
 +#endif
  
- 	if (IS_NOATIME(inode))
- 		stat->result_mask &= ~STATX_ATIME;
-@@ -73,8 +80,18 @@ int vfs_getattr_nosec(const struct path *path, struct kstat *stat,
- 	request_mask &= STATX_ALL;
- 	query_flags &= KSTAT_QUERY_FLAGS;
- 	if (inode->i_op->getattr)
-+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-+	{
-+		int err = inode->i_op->getattr(path, stat, request_mask,
-+					    query_flags);
-+		if (!err)
-+			susfs_sus_kstat_spoof_generic_fillattr(inode, stat);
-+		return err;
-+	}
-+#else
- 		return inode->i_op->getattr(path, stat, request_mask,
- 					    query_flags);
-+#endif
- 
- 	generic_fillattr(inode, stat);
- 	return 0;
+ int vfs_getattr(struct path *path, struct kstat *stat)
+ {
 diff --git a/fs/statfs.c b/fs/statfs.c
-index 083dc0a..f437695 100644
+index 083dc0ac9..f43769531 100644
 --- a/fs/statfs.c
 +++ b/fs/statfs.c
 @@ -7,6 +7,9 @@
@@ -1861,7 +1847,7 @@ index 083dc0a..f437695 100644
  		buf->f_flags = calculate_f_flags(path->mnt);
 diff --git a/fs/susfs.c b/fs/susfs.c
 new file mode 100644
-index 0000000..69c66c8
+index 000000000..69c66c867
 --- /dev/null
 +++ b/fs/susfs.c
 @@ -0,0 +1,1491 @@
@@ -3358,7 +3344,7 @@ index 0000000..69c66c8
 +
 diff --git a/include/linux/susfs.h b/include/linux/susfs.h
 new file mode 100644
-index 0000000..6ede629
+index 000000000..6ede62945
 --- /dev/null
 +++ b/include/linux/susfs.h
 @@ -0,0 +1,241 @@
@@ -3605,7 +3591,7 @@ index 0000000..6ede629
 +#endif
 diff --git a/include/linux/susfs_def.h b/include/linux/susfs_def.h
 new file mode 100644
-index 0000000..2ac778b
+index 000000000..2ac778b32
 --- /dev/null
 +++ b/include/linux/susfs_def.h
 @@ -0,0 +1,210 @@
@@ -3820,7 +3806,7 @@ index 0000000..2ac778b
 +		susfs_is_current_proc_umounted_app()
 +#endif // #ifndef KSU_SUSFS_DEF_H
 diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
-index a0c3365..08bf53d 100644
+index a0c3365c8..08bf53d0f 100644
 --- a/kernel/kallsyms.c
 +++ b/kernel/kallsyms.c
 @@ -24,6 +24,9 @@
@@ -3872,7 +3858,7 @@ index a0c3365..08bf53d 100644
  }
  
 diff --git a/kernel/sys.c b/kernel/sys.c
-index a7f8232..6799a2c 100644
+index d5cafeb15..8659b2c8d 100644
 --- a/kernel/sys.c
 +++ b/kernel/sys.c
 @@ -1143,12 +1143,20 @@ static int override_release(char __user *release, size_t len)
@@ -3897,7 +3883,7 @@ index a7f8232..6799a2c 100644
  	if (copy_to_user(name, &tmp, sizeof(tmp)))
  		return -EFAULT;
 diff --git a/mm/memory.c b/mm/memory.c
-index be6a0ae..74cb215 100755
+index be6a0ae3e..74cb2154a 100755
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -73,6 +73,10 @@
@@ -3933,7 +3919,7 @@ index be6a0ae..74cb215 100755
  				gup_flags, &page, &vma);
  		if (ret <= 0) {
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index a16c72c..d447496 100644
+index f11a4abe1..00a24a726 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
 @@ -136,6 +136,11 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)

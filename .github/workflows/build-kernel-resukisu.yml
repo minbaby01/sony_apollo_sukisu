@@ -76,7 +76,7 @@ jobs:
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
-          patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_patch_to_4.9.patch
+          patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_4.9_sony_sdm845.patch
 
       - name: Add Kernel Build Configuration Settings
         working-directory: kernel/arch/arm64/configs
