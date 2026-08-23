@@ -75,6 +75,7 @@ jobs:
         working-directory: kernel
         run: |
           patch -p1 < $GITHUB_WORKSPACE/Patches/fix-build-error.patch
+          patch -p1 < $GITHUB_WORKSPACE/ReSukiSU-Manual-hooks.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/Static-symbol-export.patch
           patch -p1 < $GITHUB_WORKSPACE/Patches/susfs_4.9_sony_sdm845.patch
 
@@ -82,6 +83,12 @@ jobs:
         working-directory: kernel/arch/arm64/configs
         run: |
           echo "CONFIG_KSU=y" >> ./${{ matrix.devices.config }}
+
+          #Resuki hook
+          echo "CONFIG_KSU_MANUAL_HOOK=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INPUT_HOOK=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_SETUID_HOOK=y" >> ./${{ matrix.devices.config }}
+          echo "CONFIG_KSU_MANUAL_HOOK_AUTO_INITRC_HOOK=y" >> ./${{ matrix.devices.config }}
 
           # Add SUSFS configuration settings
           echo "CONFIG_KSU_SUSFS=y" >> ./${{ matrix.devices.config }}
