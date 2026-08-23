@@ -130,7 +130,7 @@ jobs:
           export KBUILD_BUILD_HOST="localhost"
 
           export PATH=/usr/lib/ccache:$GITHUB_WORKSPACE/toolchain/bin:$PATH
-          make -j$(nproc --all) ${args} ${{ matrix.devices.config }} all
+          make -j2 ${args} ${{ matrix.devices.config }} all
 
       - name: Make AnyKernel3
         run: |
