@@ -84,6 +84,7 @@ jobs:
           echo "CONFIG_KSU=y" >> ./${{ matrix.devices.config }}
 
           # Add SUSFS configuration settings
+          echo "CONFIG_KSU_SUSFS=y" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./${{ matrix.devices.config }}
           echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./${{ matrix.devices.config }}
