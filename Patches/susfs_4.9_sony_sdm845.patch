@@ -1739,21 +1739,31 @@ index 1059f2a9b..4a0fb3c30 100644
  	return error;
  }
 diff --git a/fs/stat.c b/fs/stat.c
-index 068fdbcc9..65ab2e18e 100644
+index 068fdbcc9..212454a74 100644
 --- a/fs/stat.c
 +++ b/fs/stat.c
-@@ -37,6 +37,10 @@ void generic_fillattr(struct inode *inode, struct kstat *stat)
- 
- EXPORT_SYMBOL(generic_fillattr);
+@@ -18,6 +18,10 @@
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
  
 +#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
 +extern void susfs_sus_kstat_spoof_generic_fillattr(struct inode *inode, struct kstat *stat);
 +#endif
 +
- /**
-  * vfs_getattr_nosec - getattr without security checks
-  * @path: file to get attributes from
-@@ -53,14 +57,25 @@ int vfs_getattr_nosec(struct path *path, struct kstat *stat)
+ void generic_fillattr(struct inode *inode, struct kstat *stat)
+ {
+ 	stat->dev = inode->i_sb->s_dev;
+@@ -33,6 +37,9 @@ void generic_fillattr(struct inode *inode, struct kstat *stat)
+ 	stat->ctime = inode->i_ctime;
+ 	stat->blksize = i_blocksize(inode);
+ 	stat->blocks = inode->i_blocks;
++#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
++	susfs_sus_kstat_spoof_generic_fillattr(inode, stat);
++#endif
+ }
+ 
+ EXPORT_SYMBOL(generic_fillattr);
+@@ -53,8 +60,16 @@ int vfs_getattr_nosec(struct path *path, struct kstat *stat)
  {
  	struct inode *inode = d_backing_inode(path->dentry);
  
@@ -1771,15 +1781,6 @@ index 068fdbcc9..65ab2e18e 100644
  
  	generic_fillattr(inode, stat);
  	return 0;
- }
- 
- EXPORT_SYMBOL(vfs_getattr_nosec);
-+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
-+	susfs_sus_kstat_spoof_generic_fillattr(inode, stat);
-+#endif
- 
- int vfs_getattr(struct path *path, struct kstat *stat)
- {
 diff --git a/fs/statfs.c b/fs/statfs.c
 index 083dc0ac9..f43769531 100644
 --- a/fs/statfs.c
