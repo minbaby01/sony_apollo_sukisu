@@ -1020,25 +1020,15 @@ index 7a67974bb..4f934387e 100644
  				continue;
  
 diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
-index cbd82dff7..f3fe6bc1f 100644
+index cbd82dff7..86f13da0c 100644
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -6,6 +6,11 @@
- static int cmdline_proc_show(struct seq_file *m, void *v)
- {
- 	seq_printf(m, "%s\n", saved_command_line);
-+#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
-+extern struct static_key_false susfs_is_fake_cmdline_or_bootconfig_buffer_set;
-+extern void susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
-+#endif
+@@ -2,10 +2,24 @@
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
++#include <linux/jump_label.h>
 +
- 	return 0;
- }
- 
-@@ -27,3 +32,10 @@ static int __init proc_cmdline_init(void)
- 	return 0;
- }
- fs_initcall(proc_cmdline_init);
 +#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 +	if (static_branch_likely(&susfs_is_fake_cmdline_or_bootconfig_buffer_set)) {
 +		susfs_spoof_cmdline_or_bootconfig(m);
@@ -1046,6 +1036,18 @@ index cbd82dff7..f3fe6bc1f 100644
 +		return 0;
 +	}
 +#endif
+ 
+ static int cmdline_proc_show(struct seq_file *m, void *v)
+ {
++#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
++extern struct static_key_false susfs_is_fake_cmdline_or_bootconfig_buffer_set;
++extern void susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
++#endif
+ 	seq_printf(m, "%s\n", saved_command_line);
++
+ 	return 0;
+ }
+ 
 diff --git a/fs/proc/fd.c b/fs/proc/fd.c
 index 4274f83bf..1963ff302 100644
 --- a/fs/proc/fd.c
