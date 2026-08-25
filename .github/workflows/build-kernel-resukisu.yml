@@ -2,8 +2,32 @@ name: Build Kernel - ReSukiSU
 
 on:
   workflow_dispatch:
+    inputs:
+      device:
+        description: "Select"
+        required: true
+        type: choice
+        options:
+          - xz2c_dcm
+          - xz2c
+          - ALL
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ inputs.device }}" == "xz2c_dcm" ]; then
+            echo 'matrix={"include":[{"name":"xz2c_dcm","config":"tama_apollo_kddi_defconfig"}]}' >> $GITHUB_OUTPUT
+          elif [ "${{ inputs.device }}" == "xz2c" ]; then
+            echo 'matrix={"include":[{"name":"xz2c","config":"tama_apollo_defconfig"}]}' >> $GITHUB_OUTPUT
+          else
+            echo 'matrix={"include":[{"name":"xz2c_dcm","config":"tama_apollo_kddi_defconfig"},{"name":"xz2c","config":"tama_apollo_defconfig"}]}' >> $GITHUB_OUTPUT
+          fi
+
   build:
     runs-on: ubuntu-latest
     env:
@@ -14,12 +38,8 @@ jobs:
       CCACHE_MAXSIZE: 8G
     strategy:
       fail-fast: false
-      matrix:
-        devices:
-          - name: xz2c_dcm
-            config: tama_apollo_kddi_defconfig
-          # - name: xz2c
-          #   config: tama_apollo_defconfig
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+
     name: Build Kernel for ${{ matrix.devices.name }}
     steps:
       - name: Maximize build space
